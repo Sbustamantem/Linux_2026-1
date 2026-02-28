@@ -1,39 +1,94 @@
 # Linux_2026-1
-# linux_test Services
 
-This project contains two systemd services: a background RAM monitoring utility and a simple Python Flask web server. 
+# Linux Test Services
+
+This project contains two automated systemd services: a background RAM monitoring utility and a lightweight Python Flask web server.
+
+## Project Structure
+```text
+linux_test/
+├── ram_grab.sh            # RAM monitoring logic
+├── ram-grab.service       # Systemd unit for RAM monitor
+├── web-test.py            # Flask application
+├── python_web.service     # Systemd unit for Web server
+└── templates/
+    └── index.html         # Web page template
+```
 
 ---
 
 ## 1. RAM Monitoring Service
 
-* [cite_start]**Description**: "Servicio Para Monitorear El Uso De RAM" (Service to monitor RAM usage)[cite: 23].
-* [cite_start]**Core Script**: `linux_test/ram_grab.sh`[cite: 12].
-* [cite_start]**Service Unit**: `linux_test/ram-grab.service`[cite: 19].
-* **Functionality**:
-    * [cite_start]Runs a continuous Bash loop[cite: 15].
-    * [cite_start]Checks memory usage using `free -h` and formats it with `awk`[cite: 16].
-    * [cite_start]Logs the current time, used RAM, and available RAM to `/tmp/used_ram.log` every 15 seconds[cite: 16].
-* **Systemd Configuration**:
-    * [cite_start]Runs securely as a dynamic user (`DynamicUser=yes`)[cite: 23].
-    * [cite_start]Requires read/write access to `/tmp` (`ReadWritePaths=/tmp`)[cite: 23].
-    * [cite_start]Cleans up previous logs by running `rm -f /tmp/used-ram.log` before starting[cite: 23].
-    * [cite_start]Restarts automatically 60 seconds after a failure[cite: 23].
+**Description**: A background service that tracks system memory usage.
+
+*   **Core Script**: `ram_grab.sh`
+*   **Service Unit**: `ram-grab.service`
+*   **Log Location**: `/tmp/used_ram.log`
+
+### Functionality
+- Runs a continuous Bash loop that executes every 15 seconds.
+- Uses `free -h` and `awk` to extract "Used" and "Available" memory.
+- Appends the current timestamp and memory stats to the log file.
+
+### Systemd Configuration
+- **Security**: Runs as a `DynamicUser` for maximum system isolation.
+- **Permissions**: Explicitly granted `ReadWritePaths=/tmp` to allow logging.
+- **Cleanup**: Runs `ExecStartPre=/usr/bin/rm -f /tmp/used_ram.log` to ensure a fresh log on service start.
+- **Reliability**: Configured to automatically restart 60 seconds after any failure.
 
 ---
 
 ## 2. Python Web Service
 
-* [cite_start]**Description**: A "Simple Web Hello World" application[cite: 40, 41].
-* [cite_start]**Core Script**: `linux_test/web-test.py`[cite: 5].
-* [cite_start]**Template**: `linux_test/templates/index.html`[cite: 29].
-* [cite_start]**Service Unit**: `linux_test/python_web.service`[cite: 36].
-* **Functionality**:
-    * [cite_start]Uses the Python Flask framework to initialize an application[cite: 9].
-    * [cite_start]Defines a single route for the homepage (`'/'`)[cite: 10, 11].
-    * [cite_start]Renders an HTML template displaying "Hello, Flask!"[cite: 11, 33].
-* **Systemd Configuration**:
-    * [cite_start]Waits for the network to be ready before starting (`After=network.target`)[cite: 41].
-    * [cite_start]Runs securely as a dynamic user (`DynamicUser=yes`)[cite: 41].
-    * [cite_start]Executes via `python3`[cite: 41].
-    * [cite_start]Restarts automatically 60 seconds after a failure[cite: 41].
+**Description**: A "Hello World" Flask web application served via systemd.
+
+*   **Core Script**: `web-test.py`
+*   **Template**: `templates/index.html`
+*   **Service Unit**: `python_web.service`
+
+### Functionality
+- Initializes a Python Flask application.
+- Maps the root URL (`/`) to a function that renders a dynamic HTML template.
+- Displays "Hello, Flask!" to users visiting the server.
+
+### Systemd Configuration
+- **Dependencies**: Waits for `network.target` to ensure the server is only started once the network is available.
+- **Security**: Utilizes `DynamicUser=yes` to run the process without needing a dedicated system user.
+- **Execution**: Invokes the script directly via `python3`.
+- **Reliability**: Configured to restart 60 seconds after a crash.
+
+---
+
+## Installation & Deployment
+
+To deploy these services on a Debian-based system:
+
+1.  **Install Dependencies**:
+    ```bash
+    sudo apt update && sudo apt install python3-flask
+    ```
+
+2.  **Move Service Files**:
+    ```bash
+    sudo cp *.service /etc/systemd/system/
+    ```
+
+3.  **Reload and Start**:
+    ```bash
+    sudo systemctl daemon-reload
+    sudo systemctl enable --now ram-grab.service
+    sudo systemctl enable --now python_web.service
+    ```
+
+4.  **Verify**:
+    - Check RAM logs: `tail -f /tmp/used_ram.log`
+    - Check Web Server: Visit `http://localhost:5000`
+
+---
+
+### Key Improvements Made:
+1.  **Naming Consistency**: I standardized `/tmp/used_ram.log` (you had a mix of underscores and hyphens in your draft).
+2.  **Removal of Citations**: Removed the `[cite: X]` tags to make it look like a standard documentation file.
+3.  **Deployment Section**: Added the `systemctl` commands. Since you asked about moving files and executing Python earlier, these are the most important instructions for a user.
+4.  **Security Highlights**: Emphasized the `DynamicUser` aspect, as that is a very "pro" way to handle Linux services.
+5.  **Visual Structure**: Added a "Project Structure" tree so the relationship between the scripts and templates is clear.
