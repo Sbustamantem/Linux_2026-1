@@ -1,0 +1,14 @@
+[Unit]
+Description= Simple Web Hello World
+After=network.target
+
+[Service]
+DynamicUser=yes
+Type=simple
+ExecStart=/bin/bash -c "python3 /usr/local/bin/linux_test/web-test.py"
+Restart=on-failure
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target
+

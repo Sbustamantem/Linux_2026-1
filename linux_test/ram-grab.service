@@ -1,0 +1,16 @@
+[Unit]
+Description= Servicio Para Monitorear El Uso De RAM
+After=multi-user.target
+[Service]
+DynamicUser=yes
+PrivateTmp=no
+ReadWritePaths=/tmp
+ExecStart=/bin/bash /usr/local/bin/linux_test/ram_grab.sh
+Restart=on-failure
+RestartSec=60
+
+ExecStartPre=/usr/bin/rm -f /tmp/used-ram.log
+[Install]
+WantedBy=multi-user.target
+
+
