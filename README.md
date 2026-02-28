@@ -84,11 +84,3 @@ To deploy these services on a Debian-based system:
     - Check RAM logs: `tail -f /tmp/used_ram.log`
     - Check Web Server: Visit `http://localhost:5000`
 
----
-
-### Key Improvements Made:
-1.  **Naming Consistency**: I standardized `/tmp/used_ram.log` (you had a mix of underscores and hyphens in your draft).
-2.  **Removal of Citations**: Removed the `[cite: X]` tags to make it look like a standard documentation file.
-3.  **Deployment Section**: Added the `systemctl` commands. Since you asked about moving files and executing Python earlier, these are the most important instructions for a user.
-4.  **Security Highlights**: Emphasized the `DynamicUser` aspect, as that is a very "pro" way to handle Linux services.
-5.  **Visual Structure**: Added a "Project Structure" tree so the relationship between the scripts and templates is clear.
